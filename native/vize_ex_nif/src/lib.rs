@@ -719,22 +719,54 @@ fn encode_operation<'a>(env: Env<'a>, op: &OperationNode) -> Term<'a> {
             ],
         )
         .unwrap(),
-        OperationNode::Directive(node) => Term::map_from_arrays(
-            env,
-            &[
-                atoms::kind().encode(env),
-                atoms::element().encode(env),
-                atoms::name().encode(env),
-                atoms::tag().encode(env),
-            ],
-            &[
-                atoms::directive().encode(env),
-                node.element.encode(env),
-                node.name.as_str().encode(env),
-                node.tag.as_str().encode(env),
-            ],
-        )
-        .unwrap(),
+        OperationNode::Directive(node) => {
+            let exp = node
+                .dir
+                .exp
+                .as_ref()
+                .map(|e| match e {
+                    vize_atelier_core::ExpressionNode::Simple(s) => {
+                        encode_simple_expr(env, s)
+                    }
+                    vize_atelier_core::ExpressionNode::Compound(c) => {
+                        // For compound expressions, join children as a string
+                        let content: std::string::String = c
+                            .children
+                            .iter()
+                            .map(|child| match child {
+                                vize_atelier_core::CompoundExpressionChild::Simple(s) => {
+                                    s.content.to_string()
+                                }
+                                vize_atelier_core::CompoundExpressionChild::String(s) => {
+                                    s.to_string()
+                                }
+                                _ => std::string::String::new(),
+                            })
+                            .collect();
+                        content.as_str().encode(env)
+                    }
+                })
+                .unwrap_or_else(|| rustler::types::atom::nil().encode(env));
+
+            Term::map_from_arrays(
+                env,
+                &[
+                    atoms::kind().encode(env),
+                    atoms::element().encode(env),
+                    atoms::name().encode(env),
+                    atoms::tag().encode(env),
+                    atoms::value().encode(env),
+                ],
+                &[
+                    atoms::directive().encode(env),
+                    node.element.encode(env),
+                    node.name.as_str().encode(env),
+                    node.tag.as_str().encode(env),
+                    exp,
+                ],
+            )
+            .unwrap()
+        }
         OperationNode::GetTextChild(node) => Term::map_from_arrays(
             env,
             &[atoms::kind().encode(env), atoms::parent().encode(env)],
