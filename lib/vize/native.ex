@@ -36,6 +36,9 @@ defmodule Vize.Native do
   @spec vapor_ir_nif(String.t()) :: {:ok, map()} | {:error, list()}
   def vapor_ir_nif(_source), do: :erlang.nif_error(:nif_not_loaded)
 
+  @spec vapor_split_nif(String.t()) :: {:ok, map()} | {:error, list()}
+  def vapor_split_nif(_source), do: :erlang.nif_error(:nif_not_loaded)
+
   @spec lint_nif(String.t(), String.t()) :: {:ok, list()}
   def lint_nif(_source, _filename), do: :erlang.nif_error(:nif_not_loaded)
 

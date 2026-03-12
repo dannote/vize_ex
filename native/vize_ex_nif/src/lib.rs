@@ -120,6 +120,13 @@ mod atoms {
         child_ref,
         next_ref,
 
+        // Split result fields
+        statics,
+
+        // Directive kinds
+        v_show,
+        v_model,
+
         // Component kinds
         regular,
         teleport,
@@ -1123,6 +1130,604 @@ fn compile_css_nif<'a>(
     .unwrap();
 
     Ok((atoms::ok(), map).encode(env))
+}
+
+// ── Vapor Split ──
+// Produces {statics, slots} from Vapor IR, doing all HTML manipulation in Rust.
+
+const PROP_MARKER: &str = "\x00PROP\x00";
+const STRUCT_MARKER: &str = "\x00STRUCT\x00";
+const TEXT_MARKER: &str = "\x00TEXT\x00";
+
+/// Tag entry from HTML parsing: (position, tag_name, is_void_or_self_closing)
+#[derive(Debug, Clone)]
+struct TagEntry {
+    pos: usize,
+    name: std::string::String,
+    parent: Option<usize>,
+    child_index: usize,
+    open_start: usize,
+    open_end: usize,   // byte offset right after '>'
+    close_start: Option<usize>, // byte offset of '</' or None for void/self-closing
+}
+
+fn is_void_element(tag: &str) -> bool {
+    matches!(
+        tag,
+        "area" | "base" | "br" | "col" | "embed" | "hr" | "img" | "input"
+        | "link" | "meta" | "param" | "source" | "track" | "wbr"
+    )
+}
+
+fn parse_tag_tree(html: &str) -> std::vec::Vec<TagEntry> {
+    let bytes = html.as_bytes();
+    let len = bytes.len();
+    let mut entries: std::vec::Vec<TagEntry> = std::vec::Vec::new();
+    let mut stack: std::vec::Vec<usize> = std::vec::Vec::new(); // stack of tag positions
+    let mut i = 0;
+
+    while i < len {
+        if bytes[i] == b'<' {
+            if i + 1 < len && bytes[i + 1] == b'/' {
+                // Closing tag — skip to '>'
+                let start = i;
+                i += 2;
+                while i < len && bytes[i] != b'>' {
+                    i += 1;
+                }
+                if i < len {
+                    i += 1; // skip '>'
+                }
+                // Set close_start on matching stack entry and pop
+                if let Some(top) = stack.pop() {
+                    entries[top].close_start = Some(start);
+                }
+            } else {
+                // Opening tag
+                let open_start = i;
+                i += 1;
+                // Extract tag name
+                let name_start = i;
+                while i < len && bytes[i] != b' ' && bytes[i] != b'>' && bytes[i] != b'/' {
+                    i += 1;
+                }
+                let tag_name = std::string::String::from_utf8_lossy(&bytes[name_start..i]).to_string();
+
+                // Skip to end of tag
+                let mut self_closing = false;
+                while i < len && bytes[i] != b'>' {
+                    if bytes[i] == b'/' && i + 1 < len && bytes[i + 1] == b'>' {
+                        self_closing = true;
+                    }
+                    i += 1;
+                }
+                if i < len {
+                    i += 1; // skip '>'
+                }
+                let open_end = i;
+
+                let parent = stack.last().copied();
+                let child_index = if let Some(p) = parent {
+                    entries.iter().filter(|e| e.parent == Some(p)).count()
+                } else {
+                    entries.iter().filter(|e| e.parent.is_none()).count()
+                };
+
+                let pos = entries.len();
+                entries.push(TagEntry {
+                    pos,
+                    name: tag_name.clone(),
+                    parent,
+                    child_index,
+                    open_start,
+                    open_end,
+                    close_start: None,
+                });
+
+                if !self_closing && !is_void_element(&tag_name) {
+                    stack.push(pos);
+                }
+            }
+        } else {
+            i += 1;
+        }
+    }
+
+    entries
+}
+
+/// Build element_id → tag_position mapping
+fn build_elem_to_tag(
+    returns: &[usize],
+    operations: &[OperationNode],
+    tags: &[TagEntry],
+) -> std::collections::HashMap<usize, usize> {
+    let mut map = std::collections::HashMap::new();
+
+    // Root elements map to their index position in the template
+    for (idx, &elem_id) in returns.iter().enumerate() {
+        // Find the idx-th root tag (parent == None)
+        let root_tags: std::vec::Vec<_> = tags.iter().filter(|t| t.parent.is_none()).collect();
+        if let Some(tag) = root_tags.get(idx) {
+            map.insert(elem_id, tag.pos);
+        }
+    }
+
+    // Resolve child_ref / next_ref iteratively
+    loop {
+        let prev_size = map.len();
+        for op in operations {
+            match op {
+                OperationNode::ChildRef(node) => {
+                    if let Some(&parent_tag_pos) = map.get(&node.parent_id) {
+                        let children: std::vec::Vec<_> = tags
+                            .iter()
+                            .filter(|t| t.parent == Some(parent_tag_pos))
+                            .collect();
+                        if let Some(child) = children.get(node.offset) {
+                            map.insert(node.child_id, child.pos);
+                        }
+                    }
+                }
+                OperationNode::NextRef(node) => {
+                    if let Some(&prev_tag_pos) = map.get(&node.prev_id) {
+                        if let Some(prev_entry) = tags.get(prev_tag_pos) {
+                            let siblings: std::vec::Vec<_> = tags
+                                .iter()
+                                .filter(|t| t.parent == prev_entry.parent)
+                                .collect();
+                            let target_idx = prev_entry.child_index + node.offset;
+                            if let Some(sibling) = siblings.get(target_idx) {
+                                map.insert(node.child_id, sibling.pos);
+                            }
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+        if map.len() == prev_size {
+            break;
+        }
+    }
+
+    map
+}
+
+/// Inject an attribute string right before the '>' of the nth tag
+fn inject_attr(html: &mut std::string::String, tags: &mut std::vec::Vec<TagEntry>, tag_pos: usize, attr: &str) {
+    if let Some(entry) = tags.get(tag_pos) {
+        // Insert right before the '>'
+        let insert_at = entry.open_end - 1;
+        html.insert_str(insert_at, attr);
+        let delta = attr.len();
+        // Update all offsets after insert point
+        for e in tags.iter_mut() {
+            if e.open_start > insert_at {
+                e.open_start += delta;
+            }
+            if e.open_end > insert_at {
+                e.open_end += delta;
+            }
+            if let Some(ref mut cs) = e.close_start {
+                if *cs > insert_at {
+                    *cs += delta;
+                }
+            }
+        }
+    }
+}
+
+/// Inject content before the closing tag of a given tag
+fn inject_before_close(html: &mut std::string::String, tags: &mut std::vec::Vec<TagEntry>, tag_pos: usize, content: &str) {
+    if let Some(entry) = tags.get(tag_pos) {
+        let insert_at = if let Some(cs) = entry.close_start {
+            cs
+        } else {
+            // Self-closing/void — insert right after opening tag
+            entry.open_end
+        };
+        html.insert_str(insert_at, content);
+        let delta = content.len();
+        for e in tags.iter_mut() {
+            if e.open_start > insert_at {
+                e.open_start += delta;
+            }
+            if e.open_end > insert_at {
+                e.open_end += delta;
+            }
+            if let Some(ref mut cs) = e.close_start {
+                if *cs >= insert_at {
+                    *cs += delta;
+                }
+            }
+        }
+    }
+}
+
+fn encode_slot_values<'a>(env: Env<'a>, kind: Term<'a>, values: Term<'a>) -> Term<'a> {
+    Term::map_from_arrays(
+        env,
+        &[atoms::kind().encode(env), atoms::values().encode(env)],
+        &[kind, values],
+    ).unwrap()
+}
+
+fn encode_slot_value<'a>(env: Env<'a>, kind: Term<'a>, expr: &vize_atelier_core::SimpleExpressionNode) -> Term<'a> {
+    Term::map_from_arrays(
+        env,
+        &[atoms::kind().encode(env), atoms::value().encode(env)],
+        &[kind, encode_simple_expr(env, expr)],
+    ).unwrap()
+}
+
+fn encode_split_block<'a, 'b>(
+    env: Env<'a>,
+    block: &'b BlockIRNode<'b>,
+    ir: &'b RootIRNode<'b>,
+) -> Term<'a> {
+    let (statics, slots) = process_block(env, block, ir);
+    let statics_term: std::vec::Vec<Term<'a>> = statics.iter().map(|s| s.as_str().encode(env)).collect();
+    Term::map_from_arrays(
+        env,
+        &[atoms::statics().encode(env), atoms::slots().encode(env)],
+        &[statics_term.encode(env), slots.encode(env)],
+    ).unwrap()
+}
+
+fn encode_slot_if_split<'a, 'b>(
+    env: Env<'a>,
+    if_node: &'b IfIRNode<'b>,
+    ir: &'b RootIRNode<'b>,
+) -> Term<'a> {
+    let positive_split = encode_split_block(env, &if_node.positive, ir);
+
+    let negative_term = match &if_node.negative {
+        Some(NegativeBranch::Block(block)) => encode_split_block(env, block, ir),
+        Some(NegativeBranch::If(nested)) => encode_slot_if_split(env, nested, ir),
+        None => rustler::types::atom::nil().encode(env),
+    };
+
+    Term::map_from_arrays(
+        env,
+        &[
+            atoms::kind().encode(env),
+            atoms::condition().encode(env),
+            atoms::positive().encode(env),
+            atoms::negative().encode(env),
+        ],
+        &[
+            atoms::if_node().encode(env),
+            encode_simple_expr(env, &if_node.condition),
+            positive_split,
+            negative_term,
+        ],
+    ).unwrap()
+}
+
+fn encode_slot_for_split<'a, 'b>(
+    env: Env<'a>,
+    for_node: &'b ForIRNode<'b>,
+    ir: &'b RootIRNode<'b>,
+) -> Term<'a> {
+    let nil = rustler::types::atom::nil().encode(env);
+    let render_split = encode_split_block(env, &for_node.render, ir);
+
+    Term::map_from_arrays(
+        env,
+        &[
+            atoms::kind().encode(env),
+            atoms::source().encode(env),
+            atoms::value().encode(env),
+            atoms::key_prop().encode(env),
+            atoms::render().encode(env),
+        ],
+        &[
+            atoms::for_node().encode(env),
+            encode_simple_expr(env, &for_node.source),
+            for_node.value.as_ref().map(|v| encode_simple_expr(env, v)).unwrap_or(nil),
+            for_node.key_prop.as_ref().map(|v| encode_simple_expr(env, v)).unwrap_or(nil),
+            render_split,
+        ],
+    ).unwrap()
+}
+
+fn encode_slot_component<'a>(env: Env<'a>, node: &CreateComponentIRNode) -> Term<'a> {
+    let props: std::vec::Vec<Term<'a>> = node.props.iter().map(|p| encode_ir_prop(env, p)).collect();
+    let kind_atom = match node.kind {
+        ComponentKind::Regular => atoms::regular(),
+        ComponentKind::Teleport => atoms::teleport(),
+        ComponentKind::KeepAlive => atoms::keep_alive(),
+        ComponentKind::Suspense => atoms::suspense(),
+        ComponentKind::Dynamic => atoms::dynamic(),
+    };
+    Term::map_from_arrays(
+        env,
+        &[
+            atoms::kind().encode(env),
+            atoms::tag().encode(env),
+            atoms::props().encode(env),
+            atoms::value().encode(env),
+        ],
+        &[
+            atoms::create_component().encode(env),
+            node.tag.as_str().encode(env),
+            props.encode(env),
+            kind_atom.encode(env),
+        ],
+    ).unwrap()
+}
+
+fn process_block<'a, 'b>(
+    env: Env<'a>,
+    block: &'b BlockIRNode<'b>,
+    ir: &'b RootIRNode<'b>,
+) -> (std::vec::Vec<std::string::String>, std::vec::Vec<Term<'a>>) {
+    // Resolve template HTML
+    let template_html: std::string::String = block
+        .returns
+        .iter()
+        .map(|&elem_id| {
+            let template_idx = ir.element_template_map.get(&elem_id).copied().unwrap_or(elem_id);
+            ir.templates.get(template_idx).map(|s| s.as_str()).unwrap_or("")
+        })
+        .collect();
+
+    let mut html = template_html;
+    let mut tags = parse_tag_tree(&html);
+    let elem_to_tag = build_elem_to_tag(&block.returns, &block.operation, &tags);
+
+    let mut slots: std::vec::Vec<Term<'a>> = std::vec::Vec::new();
+
+    // Phase 0: Inject static event attributes
+    for op in block.operation.iter() {
+        if let OperationNode::SetEvent(ev) = op {
+            if let Some(&tag_pos) = elem_to_tag.get(&ev.element) {
+                let event_name = ev.key.content.as_str();
+                let handler = ev.value.as_ref().map(|v| v.content.as_str()).unwrap_or(event_name);
+                let attr = format!(" phx-{}=\"{}\"", event_name, handler);
+                inject_attr(&mut html, &mut tags, tag_pos, &attr);
+            }
+        }
+    }
+
+    // Phase 1: Inject prop markers
+    // Group effects by element and sort by element ID for deterministic order
+    let all_effects: std::vec::Vec<_> = block.effect.iter().flat_map(|e| e.operations.iter()).collect();
+
+    let mut prop_effects: std::vec::Vec<&SetPropIRNode> = std::vec::Vec::new();
+    let mut text_effects: std::vec::Vec<&SetTextIRNode> = std::vec::Vec::new();
+    let mut html_effects: std::vec::Vec<&SetHtmlIRNode> = std::vec::Vec::new();
+
+    for op in &all_effects {
+        match op {
+            OperationNode::SetProp(p) => prop_effects.push(p),
+            OperationNode::SetText(t) => text_effects.push(t),
+            OperationNode::SetHtml(h) => html_effects.push(h),
+            _ => {}
+        }
+    }
+
+    // Sort props by element ID for deterministic ordering
+    prop_effects.sort_by_key(|p| p.element);
+
+    for prop in &prop_effects {
+        if let Some(&tag_pos) = elem_to_tag.get(&prop.element) {
+            let attr_name = prop.prop.key.content.as_str();
+            let marker = format!(" {}=\"{}\"", attr_name, PROP_MARKER);
+            inject_attr(&mut html, &mut tags, tag_pos, &marker);
+            { let vals: std::vec::Vec<Term> = prop.prop.values.iter().map(|v| encode_simple_expr(env, v)).collect(); slots.push(encode_slot_values(env, atoms::set_prop().encode(env), vals.encode(env))); }
+        }
+    }
+
+    // Phase 1b: Inject directive markers
+    for op in block.operation.iter() {
+        if let OperationNode::Directive(dir) = op {
+            if let Some(&tag_pos) = elem_to_tag.get(&dir.element) {
+                match dir.name.as_str() {
+                    "vShow" => {
+                        let marker = format!(" style=\"{}\"", PROP_MARKER);
+                        inject_attr(&mut html, &mut tags, tag_pos, &marker);
+                        if let Some(exp) = &dir.dir.exp {
+                            match exp {
+                                vize_atelier_core::ExpressionNode::Simple(s) => {
+                                    slots.push(encode_slot_value(env, atoms::v_show().encode(env), s));
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                    "model" => {
+                        let value_marker = format!(" value=\"{}\"", PROP_MARKER);
+                        inject_attr(&mut html, &mut tags, tag_pos, &value_marker);
+                        if let Some(exp) = &dir.dir.exp {
+                            match exp {
+                                vize_atelier_core::ExpressionNode::Simple(s) => {
+                                    slots.push(encode_slot_value(env, atoms::v_model().encode(env), s));
+                                    // Also inject phx-change handler
+                                    let handler_name = format!("{}_changed", s.content.as_str());
+                                    let change_attr = format!(" phx-change=\"{}\"", handler_name);
+                                    inject_attr(&mut html, &mut tags, tag_pos, &change_attr);
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    // Phase 2: Replace text placeholders (the single space in templates)
+    // Text effects target text nodes; the template has a single space as placeholder
+    // We need to find these spaces between tags and replace with markers
+    // Reparse after attr injections
+    tags = parse_tag_tree(&html);
+
+    for text in &text_effects {
+        if let Some(&tag_pos) = elem_to_tag.get(&text.element) {
+            // The text node is the content of this element
+            // Find the content region (between open_end and close_start)
+            if let Some(entry) = tags.get(tag_pos) {
+                let content_start = entry.open_end;
+                let content_end = entry.close_start.unwrap_or(content_start);
+                let content = &html[content_start..content_end];
+
+                // Replace the space with our text marker
+                if content.contains(' ') {
+                    let new_content = content.replacen(' ', TEXT_MARKER, 1);
+                    html = format!("{}{}{}", &html[..content_start], new_content, &html[content_end..]);
+                    tags = parse_tag_tree(&html);
+                }
+            }
+        }
+        { let vals: std::vec::Vec<Term> = text.values.iter().map(|v| encode_simple_expr(env, v)).collect(); slots.push(encode_slot_values(env, atoms::set_text().encode(env), vals.encode(env))); }
+    }
+
+    // Also handle set_html effects
+    for h in &html_effects {
+        if let Some(&tag_pos) = elem_to_tag.get(&h.element) {
+            if let Some(entry) = tags.get(tag_pos) {
+                let content_start = entry.open_end;
+                let content_end = entry.close_start.unwrap_or(content_start);
+                let content = &html[content_start..content_end];
+                if content.contains(' ') {
+                    let new_content = content.replacen(' ', TEXT_MARKER, 1);
+                    html = format!("{}{}{}", &html[..content_start], new_content, &html[content_end..]);
+                    tags = parse_tag_tree(&html);
+                }
+            }
+        }
+        slots.push(encode_slot_value(env, atoms::set_html().encode(env), &h.value));
+    }
+
+    // Phase 3: Inject structural markers (v-if, v-for, components)
+    for op in block.operation.iter() {
+        match op {
+            OperationNode::If(if_node) => {
+                if let Some(parent_id) = if_node.parent {
+                    if let Some(&tag_pos) = elem_to_tag.get(&parent_id) {
+                        inject_before_close(&mut html, &mut tags, tag_pos, STRUCT_MARKER);
+                    }
+                } else {
+                    html.push_str(STRUCT_MARKER);
+                }
+                slots.push(encode_slot_if_split(env, if_node, ir));
+            }
+            OperationNode::For(for_node) => {
+                if let Some(parent_id) = for_node.parent {
+                    if let Some(&tag_pos) = elem_to_tag.get(&parent_id) {
+                        inject_before_close(&mut html, &mut tags, tag_pos, STRUCT_MARKER);
+                    }
+                } else {
+                    html.push_str(STRUCT_MARKER);
+                }
+                slots.push(encode_slot_for_split(env, for_node, ir));
+            }
+            OperationNode::CreateComponent(comp) => {
+                if let Some(parent_id) = comp.parent {
+                    if let Some(&tag_pos) = elem_to_tag.get(&parent_id) {
+                        inject_before_close(&mut html, &mut tags, tag_pos, STRUCT_MARKER);
+                    }
+                } else {
+                    html.push_str(STRUCT_MARKER);
+                }
+                slots.push(encode_slot_component(env, comp));
+            }
+            _ => {}
+        }
+    }
+
+    // Phase 4: Split on markers
+    let mut statics: std::vec::Vec<std::string::String> = std::vec::Vec::new();
+    let mut current = std::string::String::new();
+
+    let mut rest = html.as_str();
+    loop {
+        // Find the next marker
+        let prop_pos = rest.find(PROP_MARKER);
+        let text_pos = rest.find(TEXT_MARKER);
+        let struct_pos = rest.find(STRUCT_MARKER);
+
+        let next = [prop_pos, text_pos, struct_pos]
+            .iter()
+            .filter_map(|p| *p)
+            .min();
+
+        match next {
+            None => {
+                current.push_str(rest);
+                break;
+            }
+            Some(pos) => {
+                current.push_str(&rest[..pos]);
+                statics.push(std::mem::take(&mut current));
+
+                // Determine which marker and skip it
+                if Some(pos) == prop_pos {
+                    rest = &rest[pos + PROP_MARKER.len()..];
+                } else if Some(pos) == text_pos {
+                    rest = &rest[pos + TEXT_MARKER.len()..];
+                } else {
+                    rest = &rest[pos + STRUCT_MARKER.len()..];
+                }
+            }
+        }
+    }
+    statics.push(current);
+
+    (statics, slots)
+}
+
+#[rustler::nif(schedule = "DirtyCpu")]
+fn vapor_split_nif<'a>(env: Env<'a>, source: &str) -> NifResult<Term<'a>> {
+    let allocator = Bump::new();
+    let parser_opts = ParserOptions::default();
+    let (mut root, errors) = parse_with_options(&allocator, source, parser_opts);
+
+    if !errors.is_empty() {
+        let msgs: std::vec::Vec<std::string::String> = errors.iter().map(|e| e.message.to_string()).collect();
+        return Ok((atoms::error(), msgs).encode(env));
+    }
+
+    let transform_opts = TransformOptions {
+        vapor: true,
+        ..Default::default()
+    };
+    transform(&allocator, &mut root, transform_opts, None);
+
+    let ir = transform_to_ir(&allocator, &root);
+
+    // Do everything inside this scope so ir is still alive when we encode Terms
+    let (statics, slots) = process_block(env, &ir.block, &ir);
+
+    let statics_term: std::vec::Vec<Term<'a>> = statics.iter().map(|s| s.as_str().encode(env)).collect();
+    let templates: std::vec::Vec<&str> = ir.templates.iter().map(|s| s.as_str()).collect();
+    let element_template_map: std::vec::Vec<(usize, usize)> = ir
+        .element_template_map
+        .iter()
+        .map(|(&k, &v)| (k, v))
+        .collect();
+
+    let result = Term::map_from_arrays(
+        env,
+        &[
+            atoms::statics().encode(env),
+            atoms::slots().encode(env),
+            atoms::templates().encode(env),
+            atoms::element_template_map().encode(env),
+        ],
+        &[
+            statics_term.encode(env),
+            slots.encode(env),
+            templates.encode(env),
+            element_template_map.encode(env),
+        ],
+    )
+    .unwrap();
+
+    Ok((atoms::ok(), result).encode(env))
 }
 
 rustler::init!("Elixir.Vize.Native");
