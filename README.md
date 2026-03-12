@@ -20,7 +20,7 @@ including Vapor mode IR for BEAM-native SSR.
 ```elixir
 def deps do
   [
-    {:vize, "~> 0.4.0"}
+    {:vize, "~> 0.6.0"}
   ]
 end
 ```
@@ -96,6 +96,22 @@ The IR exposes every Vue construct as Elixir maps with `:kind` atoms:
 
 Static expressions are tagged as `{:static, "value"}` tuples,
 dynamic expressions are plain strings.
+
+### Vapor Split (for Phoenix LiveView)
+
+```elixir
+{:ok, split} = Vize.vapor_split("<div :class=\"cls\"><p>{{ msg }}</p></div>")
+
+split.statics  # ["<div class=\"", "\"><p>", "</p></div>"]
+split.slots    # [%{kind: :set_prop, values: ["cls"]}, %{kind: :set_text, values: ["msg"]}]
+```
+
+Produces a statics/slots split ready for `%Phoenix.LiveView.Rendered{}`.
+All HTML manipulation (tag tree parsing, marker injection, splitting) happens
+in the NIF. Sub-blocks for `v-if` / `v-for` are recursively split.
+
+Used by [PhoenixVapor](https://github.com/dannote/phoenix_vapor) to render
+Vue templates as native LiveView output.
 
 ### SSR Compilation
 
