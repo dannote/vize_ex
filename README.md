@@ -18,7 +18,7 @@ including Vapor mode IR for BEAM-native SSR.
 ```elixir
 def deps do
   [
-    {:vize, "~> 0.1.0"}
+    {:vize, "~> 0.2.0"}
   ]
 end
 ```
@@ -63,13 +63,27 @@ result.templates  # Static HTML templates
 ```elixir
 {:ok, ir} = Vize.vapor_ir("<div :class=\"cls\">{{ msg }}</div>")
 
-ir.templates   # ["<div></div>"]
-ir.block       # %{operations: [...], effects: [...], returns: [...]}
+ir.templates             # ["<div> </div>"]
+ir.element_template_map  # [{0, 0}]  — element ID → template index
+ir.block                 # %{operations: [...], effects: [...], returns: [...]}
 ```
 
-The IR exposes every operation (set_prop, set_text, if_node, for_node,
-create_component, etc.) as plain Elixir maps — enabling a pure Elixir
-renderer that produces HTML without executing JavaScript.
+The IR exposes every Vue construct as Elixir maps with `:kind` atoms:
+
+| Kind | Vue Feature |
+|------|-------------|
+| `:set_text` | `{{ expr }}` |
+| `:set_prop` | `:attr="expr"` |
+| `:set_html` | `v-html` |
+| `:set_dynamic_props` | `v-bind="obj"` |
+| `:set_event` | `@event="handler"` |
+| `:if_node` | `v-if` / `v-else-if` / `v-else` |
+| `:for_node` | `v-for` |
+| `:create_component` | `<Component />` |
+| `:directive` | `v-show`, `v-model`, custom |
+
+Static expressions are tagged as `{:static, "value"}` tuples,
+dynamic expressions are plain strings.
 
 ### SSR Compilation
 

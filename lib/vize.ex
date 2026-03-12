@@ -53,7 +53,8 @@ defmodule Vize do
           templates: [String.t()],
           components: [String.t()],
           directives: [String.t()],
-          block: map()
+          block: map(),
+          element_template_map: [{non_neg_integer(), non_neg_integer()}]
         }
 
   @type diagnostic :: %{message: String.t(), name: String.t() | nil}
@@ -260,6 +261,10 @@ defmodule Vize do
     * `:components` — component names used in the template
     * `:directives` — directive names used in the template
     * `:block` — the root block with operations, effects, and returns
+    * `:element_template_map` — list of `{element_id, template_index}` tuples
+
+  Expressions are either plain strings (dynamic) or `{:static, value}`
+  tuples (compile-time constants).
 
   Each operation has a `:kind` field indicating its type:
 
