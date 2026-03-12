@@ -62,6 +62,7 @@ mod atoms {
         once,
         parent,
         anchor,
+        key_prop,
         tag,
         props,
         slots,
@@ -888,6 +889,7 @@ fn encode_for_node<'a>(env: Env<'a>, for_node: &ForIRNode) -> Term<'a> {
             atoms::value().encode(env),
             atoms::key().encode(env),
             atoms::index().encode(env),
+            atoms::key_prop().encode(env),
             atoms::render().encode(env),
             atoms::once().encode(env),
             atoms::parent().encode(env),
@@ -908,6 +910,11 @@ fn encode_for_node<'a>(env: Env<'a>, for_node: &ForIRNode) -> Term<'a> {
                 .unwrap_or(nil),
             for_node
                 .index
+                .as_ref()
+                .map(|v| encode_simple_expr(env, v))
+                .unwrap_or(nil),
+            for_node
+                .key_prop
                 .as_ref()
                 .map(|v| encode_simple_expr(env, v))
                 .unwrap_or(nil),
