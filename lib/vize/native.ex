@@ -1,5 +1,12 @@
 defmodule Vize.Native do
-  use Rustler, otp_app: :vize, crate: "vize_ex_nif"
+  version = Mix.Project.config()[:version]
+
+  use RustlerPrecompiled,
+    otp_app: :vize,
+    crate: "vize_ex_nif",
+    base_url: "https://github.com/dannote/vize_ex/releases/download/v#{version}",
+    force_build: System.get_env("VIZE_EX_BUILD") in ["1", "true"],
+    version: version
 
   @spec parse_sfc_nif(String.t()) :: {:ok, map()} | {:error, String.t()}
   def parse_sfc_nif(_source), do: :erlang.nif_error(:nif_not_loaded)
