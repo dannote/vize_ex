@@ -30,7 +30,10 @@ defmodule Vize do
           code: String.t(),
           css: String.t() | nil,
           errors: [map()],
-          warnings: [map()]
+          warnings: [map()],
+          template_hash: String.t() | nil,
+          style_hash: String.t() | nil,
+          script_hash: String.t() | nil
         }
 
   @type template_result :: %{
@@ -108,6 +111,8 @@ defmodule Vize do
 
     * `:vapor` — compile in Vapor mode (default: `false`)
     * `:ssr` — compile for server-side rendering (default: `false`)
+    * `:filename` — SFC filename for scope ID generation and source maps (e.g. `"App.vue"`)
+    * `:scope_id` — explicit scope ID for scoped CSS (default: auto-generated from filename)
 
   ## Examples
 
@@ -127,7 +132,9 @@ defmodule Vize do
   def compile_sfc(source, opts \\ []) do
     vapor = Keyword.get(opts, :vapor, false)
     ssr = Keyword.get(opts, :ssr, false)
-    Vize.Native.compile_sfc_nif(source, vapor, ssr)
+    filename = Keyword.get(opts, :filename, "")
+    scope_id = Keyword.get(opts, :scope_id, "")
+    Vize.Native.compile_sfc_nif(source, filename, scope_id, vapor, ssr)
   end
 
   @doc """

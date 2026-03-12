@@ -105,6 +105,27 @@ defmodule VizeTest do
       {:ok, result} = Vize.compile_sfc("<template><div>{{ msg }}</div></template>")
       assert result.code =~ "msg"
     end
+
+    test "accepts filename option" do
+      {:ok, result} = Vize.compile_sfc(@styled_sfc, filename: "App.vue")
+      assert result.errors == []
+    end
+
+    test "returns template hash" do
+      {:ok, result} = Vize.compile_sfc(@simple_sfc)
+      assert is_binary(result.template_hash)
+    end
+
+    test "returns style hash" do
+      {:ok, result} = Vize.compile_sfc(@styled_sfc)
+      assert is_binary(result.style_hash)
+    end
+
+    test "returns nil hashes for missing blocks" do
+      {:ok, result} = Vize.compile_sfc("<template><div>hi</div></template>")
+      assert result.template_hash != nil
+      assert result.style_hash == nil
+    end
   end
 
   describe "compile_sfc!/2" do

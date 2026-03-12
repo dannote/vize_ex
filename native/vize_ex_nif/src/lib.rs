@@ -38,6 +38,9 @@ mod atoms {
         css,
         errors,
         warnings,
+        template_hash,
+        style_hash,
+        script_hash,
         message,
         preamble,
         helpers,
@@ -301,9 +304,20 @@ fn encode_script_block<'a>(
 // ── SFC Compilation ──
 
 #[rustler::nif(schedule = "DirtyCpu")]
-fn compile_sfc_nif<'a>(env: Env<'a>, source: &str, vapor: bool, ssr: bool) -> NifResult<Term<'a>> {
-    let opts = SfcParseOptions::default();
-    let descriptor = match parse_sfc(source, opts) {
+fn compile_sfc_nif<'a>(
+    env: Env<'a>,
+    source: &str,
+    filename: &str,
+    scope_id: &str,
+    vapor: bool,
+    ssr: bool,
+) -> NifResult<Term<'a>> {
+    let mut parse_opts = SfcParseOptions::default();
+    if !filename.is_empty() {
+        parse_opts.filename = filename.into();
+    }
+
+    let descriptor = match parse_sfc(source, parse_opts) {
         Ok(d) => d,
         Err(e) => {
             let msg = format!("{e:?}");
@@ -311,7 +325,7 @@ fn compile_sfc_nif<'a>(env: Env<'a>, source: &str, vapor: bool, ssr: bool) -> Ni
         }
     };
 
-    let compile_opts = SfcCompileOptions {
+    let mut compile_opts = SfcCompileOptions {
         vapor,
         template: vize_atelier_sfc::TemplateCompileOptions {
             ssr,
@@ -319,6 +333,12 @@ fn compile_sfc_nif<'a>(env: Env<'a>, source: &str, vapor: bool, ssr: bool) -> Ni
         },
         ..Default::default()
     };
+    if !scope_id.is_empty() {
+        compile_opts.scope_id = Some(scope_id.into());
+    }
+    if !filename.is_empty() {
+        compile_opts.script.id = Some(filename.into());
+    }
 
     match compile_sfc(&descriptor, compile_opts) {
         Ok(result) => {
@@ -333,6 +353,10 @@ fn compile_sfc_nif<'a>(env: Env<'a>, source: &str, vapor: bool, ssr: bool) -> Ni
                 .map(|e| sfc_error_to_term(env, e))
                 .collect();
 
+            let template_hash = descriptor.template_hash();
+            let style_hash = descriptor.style_hash();
+            let script_hash = descriptor.script_hash();
+
             let map = Term::map_from_arrays(
                 env,
                 &[
@@ -340,12 +364,18 @@ fn compile_sfc_nif<'a>(env: Env<'a>, source: &str, vapor: bool, ssr: bool) -> Ni
                     atoms::css().encode(env),
                     atoms::errors().encode(env),
                     atoms::warnings().encode(env),
+                    atoms::template_hash().encode(env),
+                    atoms::style_hash().encode(env),
+                    atoms::script_hash().encode(env),
                 ],
                 &[
                     result.code.as_str().encode(env),
                     result.css.as_deref().encode(env),
                     errors_term.encode(env),
                     warnings_term.encode(env),
+                    template_hash.as_deref().encode(env),
+                    style_hash.as_deref().encode(env),
+                    script_hash.as_deref().encode(env),
                 ],
             )
             .unwrap();
@@ -726,9 +756,7 @@ fn encode_operation<'a>(env: Env<'a>, op: &OperationNode) -> Term<'a> {
                 .exp
                 .as_ref()
                 .map(|e| match e {
-                    vize_atelier_core::ExpressionNode::Simple(s) => {
-                        encode_simple_expr(env, s)
-                    }
+                    vize_atelier_core::ExpressionNode::Simple(s) => encode_simple_expr(env, s),
                     vize_atelier_core::ExpressionNode::Compound(c) => {
                         // For compound expressions, join children as a string
                         let content: std::string::String = c
@@ -952,7 +980,10 @@ fn vapor_ir_nif<'a>(env: Env<'a>, source: &str) -> NifResult<Term<'a>> {
 
     // Element ID → template index mapping
     let etm_keys: Vec<usize> = ir.element_template_map.keys().copied().collect();
-    let etm_vals: Vec<usize> = etm_keys.iter().map(|k| ir.element_template_map[k]).collect();
+    let etm_vals: Vec<usize> = etm_keys
+        .iter()
+        .map(|k| ir.element_template_map[k])
+        .collect();
     let element_template_map: Vec<(usize, usize)> =
         etm_keys.into_iter().zip(etm_vals.into_iter()).collect();
 
