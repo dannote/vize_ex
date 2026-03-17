@@ -364,7 +364,7 @@ defmodule Vize do
   Compile CSS using LightningCSS.
 
   Parses, autoprefixes, and optionally minifies CSS. Also handles
-  Vue scoped CSS transformation and `v-bind()` extraction.
+  Vue scoped CSS transformation, `v-bind()` extraction, and CSS Modules.
 
   ## Options
 
@@ -372,6 +372,9 @@ defmodule Vize do
     * `:scoped` — apply Vue scoped CSS transformation (default: `false`)
     * `:scope_id` — scope ID for scoped CSS (e.g. `"data-v-abc123"`)
     * `:filename` — filename for error reporting
+    * `:css_modules` — enable CSS Modules scoping (default: `false`).
+      When enabled, class names, IDs, keyframes, and other identifiers are
+      scoped, and the result includes an `:exports` map of original → hashed names.
     * `:targets` — browser targets for autoprefixing, map with optional
       `:chrome`, `:firefox`, `:safari` keys as major version integers
 
@@ -382,6 +385,10 @@ defmodule Vize do
       true
       iex> result.errors
       []
+
+      iex> {:ok, result} = Vize.compile_css(".btn { color: red }", css_modules: true, filename: "btn.module.css")
+      iex> is_map(result.exports)
+      true
   """
   @spec compile_css(String.t(), keyword()) :: {:ok, css_result()}
   def compile_css(source, opts \\ []) do
