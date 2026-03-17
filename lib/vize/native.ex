@@ -50,7 +50,8 @@ defmodule Vize.Native do
           String.t(),
           integer(),
           integer(),
-          integer()
+          integer(),
+          boolean()
         ) :: {:ok, map()}
   def compile_css_nif(
         _source,
@@ -60,7 +61,8 @@ defmodule Vize.Native do
         _filename,
         _chrome,
         _firefox,
-        _safari
+        _safari,
+        _css_modules
       ),
       do: :erlang.nif_error(:nif_not_loaded)
 end

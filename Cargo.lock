@@ -771,7 +771,18 @@ checksum = "93d4e5a43018728a7f6aa14b1034c43a0869fc0d05002a181d5dacc698e488b9"
 dependencies = [
  "allocator-api2",
  "hashbrown 0.16.1",
- "oxc_data_structures",
+ "oxc_data_structures 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-hash",
+]
+
+[[package]]
+name = "oxc_allocator"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "allocator-api2",
+ "hashbrown 0.16.1",
+ "oxc_data_structures 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
  "rustc-hash",
 ]
 
@@ -782,14 +793,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "12b7429c1035c3bf0de582ae4458d4f769566d574cfe71e170e328a123337a8d"
 dependencies = [
  "bitflags",
- "oxc_allocator",
- "oxc_ast_macros",
- "oxc_data_structures",
- "oxc_diagnostics",
- "oxc_estree",
- "oxc_regular_expression",
- "oxc_span",
- "oxc_syntax",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast_macros 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_data_structures 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_diagnostics 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_estree 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_regular_expression 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "oxc_ast"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "bitflags",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast_macros 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_data_structures 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_diagnostics 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_estree 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_regular_expression 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
 ]
 
 [[package]]
@@ -805,15 +832,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxc_ast_macros"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "phf 0.13.1",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
 name = "oxc_ast_visit"
 version = "0.116.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "87408c66c769e714cc74c24626403c63b0fd76f251d0971404a347611280668d"
 dependencies = [
- "oxc_allocator",
- "oxc_ast",
- "oxc_span",
- "oxc_syntax",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "oxc_ast_visit"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
 ]
 
 [[package]]
@@ -826,14 +875,34 @@ dependencies = [
  "cow-utils",
  "dragonbox_ecma",
  "itoa",
- "oxc_allocator",
- "oxc_ast",
- "oxc_data_structures",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_data_structures 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "oxc_index",
- "oxc_semantic",
+ "oxc_semantic 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "oxc_sourcemap",
- "oxc_span",
- "oxc_syntax",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-hash",
+]
+
+[[package]]
+name = "oxc_codegen"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "bitflags",
+ "cow-utils",
+ "dragonbox_ecma",
+ "itoa",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_data_structures 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_index",
+ "oxc_semantic 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_sourcemap",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
  "rustc-hash",
 ]
 
@@ -845,7 +914,19 @@ checksum = "4d7987ecf86a8b5c4232dba5cdbe3b639bc0e3618e8c6a7c0a4797447a2baf57"
 dependencies = [
  "cow-utils",
  "oxc-browserslist",
- "oxc_syntax",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-hash",
+ "serde",
+]
+
+[[package]]
+name = "oxc_compat"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "cow-utils",
+ "oxc-browserslist",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
  "rustc-hash",
  "serde",
 ]
@@ -855,6 +936,14 @@ name = "oxc_data_structures"
 version = "0.116.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af06d9ab1bfd8baff16ef7dcc6824ea1fea0938ba41b1e113b882738e285d8ee"
+dependencies = [
+ "ropey",
+]
+
+[[package]]
+name = "oxc_data_structures"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
 dependencies = [
  "ropey",
 ]
@@ -871,6 +960,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "oxc_diagnostics"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "cow-utils",
+ "oxc-miette",
+ "percent-encoding",
+]
+
+[[package]]
 name = "oxc_ecmascript"
 version = "0.116.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -879,11 +978,26 @@ dependencies = [
  "cow-utils",
  "num-bigint",
  "num-traits",
- "oxc_allocator",
- "oxc_ast",
- "oxc_regular_expression",
- "oxc_span",
- "oxc_syntax",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_regular_expression 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "oxc_ecmascript"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "cow-utils",
+ "num-bigint",
+ "num-traits",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_regular_expression 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
 ]
 
 [[package]]
@@ -891,6 +1005,11 @@ name = "oxc_estree"
 version = "0.116.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f5e33d1f099a1e5c8f820df64654b1657f0aaf744d4137377726902738bfba80"
+
+[[package]]
+name = "oxc_estree"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
 
 [[package]]
 name = "oxc_index"
@@ -913,14 +1032,36 @@ dependencies = [
  "memchr",
  "num-bigint",
  "num-traits",
- "oxc_allocator",
- "oxc_ast",
- "oxc_data_structures",
- "oxc_diagnostics",
- "oxc_ecmascript",
- "oxc_regular_expression",
- "oxc_span",
- "oxc_syntax",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_data_structures 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_diagnostics 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ecmascript 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_regular_expression 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-hash",
+ "seq-macro",
+]
+
+[[package]]
+name = "oxc_parser"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "bitflags",
+ "cow-utils",
+ "memchr",
+ "num-bigint",
+ "num-traits",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_data_structures 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_diagnostics 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ecmascript 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_regular_expression 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
  "rustc-hash",
  "seq-macro",
 ]
@@ -932,10 +1073,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f28f7617dc3d0dd642ca4f9be4c8cf5365f114dc27a745d1ebfa82b8f729ef3"
 dependencies = [
  "bitflags",
- "oxc_allocator",
- "oxc_ast_macros",
- "oxc_diagnostics",
- "oxc_span",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast_macros 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_diagnostics 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "phf 0.13.1",
+ "rustc-hash",
+ "unicode-id-start",
+]
+
+[[package]]
+name = "oxc_regular_expression"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "bitflags",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast_macros 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_diagnostics 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
  "phf 0.13.1",
  "rustc-hash",
  "unicode-id-start",
@@ -949,15 +1105,36 @@ checksum = "c5ab63f46cfbf4ef58b5a78439202593fe4a8511281ba1de32303e2c28b0e5e8"
 dependencies = [
  "itertools 0.14.0",
  "memchr",
- "oxc_allocator",
- "oxc_ast",
- "oxc_ast_visit",
- "oxc_data_structures",
- "oxc_diagnostics",
- "oxc_ecmascript",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast_visit 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_data_structures 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_diagnostics 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ecmascript 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "oxc_index",
- "oxc_span",
- "oxc_syntax",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-hash",
+ "self_cell",
+ "smallvec",
+]
+
+[[package]]
+name = "oxc_semantic"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "itertools 0.14.0",
+ "memchr",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast_visit 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_data_structures 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_diagnostics 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ecmascript 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_index",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
  "rustc-hash",
  "self_cell",
  "smallvec",
@@ -984,10 +1161,23 @@ checksum = "6813c0f28625a9a1c8906144396fb7ee22a2a7722d49b707a06d19f81be450ef"
 dependencies = [
  "compact_str 0.9.0",
  "oxc-miette",
- "oxc_allocator",
- "oxc_ast_macros",
- "oxc_estree",
- "oxc_str",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast_macros 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_estree 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_str 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "oxc_span"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "compact_str 0.9.0",
+ "oxc-miette",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast_macros 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_estree 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_str 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
 ]
 
 [[package]]
@@ -998,8 +1188,19 @@ checksum = "b163ab61908f1d636704bb57425692c38a7addde8e7244ff0dd92394084a17fe"
 dependencies = [
  "compact_str 0.9.0",
  "hashbrown 0.16.1",
- "oxc_allocator",
- "oxc_estree",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_estree 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "oxc_str"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "compact_str 0.9.0",
+ "hashbrown 0.16.1",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_estree 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
 ]
 
 [[package]]
@@ -1012,11 +1213,29 @@ dependencies = [
  "cow-utils",
  "dragonbox_ecma",
  "nonmax",
- "oxc_allocator",
- "oxc_ast_macros",
- "oxc_estree",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast_macros 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_estree 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "oxc_index",
- "oxc_span",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "phf 0.13.1",
+ "unicode-id-start",
+]
+
+[[package]]
+name = "oxc_syntax"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "bitflags",
+ "cow-utils",
+ "dragonbox_ecma",
+ "nonmax",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast_macros 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_estree 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_index",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
  "phf 0.13.1",
  "unicode-id-start",
 ]
@@ -1032,18 +1251,46 @@ dependencies = [
  "indexmap",
  "itoa",
  "memchr",
- "oxc_allocator",
- "oxc_ast",
- "oxc_ast_visit",
- "oxc_compat",
- "oxc_data_structures",
- "oxc_diagnostics",
- "oxc_ecmascript",
- "oxc_regular_expression",
- "oxc_semantic",
- "oxc_span",
- "oxc_syntax",
- "oxc_traverse",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast_visit 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_compat 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_data_structures 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_diagnostics 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ecmascript 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_regular_expression 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_semantic 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_traverse 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-hash",
+ "serde",
+ "serde_json",
+ "sha1",
+]
+
+[[package]]
+name = "oxc_transformer"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "base64",
+ "compact_str 0.9.0",
+ "indexmap",
+ "itoa",
+ "memchr",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast_visit 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_compat 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_data_structures 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_diagnostics 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ecmascript 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_regular_expression 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_semantic 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_traverse 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
  "rustc-hash",
  "serde",
  "serde_json",
@@ -1057,15 +1304,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c36f3713080a74481e1d725dcfcec7a1e0ebce350df427f1babc0cd4c8865f1"
 dependencies = [
  "itoa",
- "oxc_allocator",
- "oxc_ast",
- "oxc_ast_visit",
- "oxc_data_structures",
- "oxc_ecmascript",
- "oxc_semantic",
- "oxc_span",
- "oxc_str",
- "oxc_syntax",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast_visit 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_data_structures 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ecmascript 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_semantic 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_str 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustc-hash",
+]
+
+[[package]]
+name = "oxc_traverse"
+version = "0.116.0"
+source = "git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c#27ee4fc46233bc837e01cb384384cf08dced127c"
+dependencies = [
+ "itoa",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast_visit 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_data_structures 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ecmascript 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_semantic 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_str 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
  "rustc-hash",
 ]
 
@@ -1739,8 +2004,20 @@ dependencies = [
  "compact_str 0.8.1",
  "serde",
  "thiserror",
- "vize_carton",
- "vize_relief",
+ "vize_carton 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_relief 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "vize_armature"
+version = "0.28.0"
+source = "git+https://github.com/dannote/vize.git?branch=css-modules#54a2acbcdb3b0bcf1892b9e21545458014f9f5f9"
+dependencies = [
+ "compact_str 0.8.1",
+ "serde",
+ "thiserror",
+ "vize_carton 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_relief 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
 ]
 
 [[package]]
@@ -1752,23 +2029,50 @@ dependencies = [
  "bumpalo",
  "compact_str 0.8.1",
  "memoffset",
- "oxc_allocator",
- "oxc_ast",
- "oxc_ast_visit",
- "oxc_codegen",
- "oxc_diagnostics",
- "oxc_parser",
- "oxc_semantic",
- "oxc_span",
- "oxc_syntax",
- "oxc_transformer",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast_visit 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_codegen 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_diagnostics 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_parser 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_semantic 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_transformer 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "serde_json",
  "thiserror",
- "vize_armature",
- "vize_carton",
- "vize_croquis",
- "vize_relief",
+ "vize_armature 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_carton 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_croquis 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_relief 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "vize_atelier_core"
+version = "0.28.0"
+source = "git+https://github.com/dannote/vize.git?branch=css-modules#54a2acbcdb3b0bcf1892b9e21545458014f9f5f9"
+dependencies = [
+ "bumpalo",
+ "compact_str 0.8.1",
+ "memoffset",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast_visit 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_codegen 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_diagnostics 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_parser 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_semantic 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_transformer 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "vize_armature 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_carton 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_croquis 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_relief 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
 ]
 
 [[package]]
@@ -1780,37 +2084,49 @@ dependencies = [
  "phf 0.11.3",
  "serde",
  "thiserror",
- "vize_atelier_core",
- "vize_carton",
- "vize_croquis",
+ "vize_atelier_core 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_carton 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_croquis 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "vize_atelier_dom"
+version = "0.28.0"
+source = "git+https://github.com/dannote/vize.git?branch=css-modules#54a2acbcdb3b0bcf1892b9e21545458014f9f5f9"
+dependencies = [
+ "phf 0.11.3",
+ "serde",
+ "thiserror",
+ "vize_atelier_core 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_carton 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_croquis 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
 ]
 
 [[package]]
 name = "vize_atelier_sfc"
 version = "0.28.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53dcfbbc20711ce25896cfacfec0634d370ab5deeb879ab09fe9615d1eda0fda"
+source = "git+https://github.com/dannote/vize.git?branch=css-modules#54a2acbcdb3b0bcf1892b9e21545458014f9f5f9"
 dependencies = [
  "lightningcss",
  "memchr",
- "oxc_allocator",
- "oxc_ast",
- "oxc_ast_visit",
- "oxc_codegen",
- "oxc_parser",
- "oxc_semantic",
- "oxc_span",
- "oxc_syntax",
- "oxc_transformer",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast_visit 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_codegen 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_parser 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_semantic 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_transformer 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
  "regex",
  "serde",
  "serde_json",
  "thiserror",
- "vize_atelier_core",
- "vize_atelier_dom",
- "vize_atelier_vapor",
- "vize_carton",
- "vize_croquis",
+ "vize_atelier_core 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_atelier_dom 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_atelier_vapor 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_carton 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_croquis 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
 ]
 
 [[package]]
@@ -1820,10 +2136,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5040d61310a8f6ff484042f7b0f48692e1f42a27181c4dd1e1a5f41c91968c80"
 dependencies = [
  "serde",
- "vize_armature",
- "vize_atelier_core",
- "vize_carton",
- "vize_relief",
+ "vize_armature 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_atelier_core 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_carton 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_relief 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1832,17 +2148,35 @@ version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0783befd88150a95b9d659ec0ff6e68c18f2abd01cb1eacc4f64ddab372c378c"
 dependencies = [
- "oxc_allocator",
- "oxc_ast",
- "oxc_ast_visit",
- "oxc_parser",
- "oxc_span",
- "oxc_syntax",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast_visit 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_parser 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "thiserror",
- "vize_atelier_core",
- "vize_carton",
- "vize_croquis",
+ "vize_atelier_core 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_carton 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_croquis 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "vize_atelier_vapor"
+version = "0.28.0"
+source = "git+https://github.com/dannote/vize.git?branch=css-modules#54a2acbcdb3b0bcf1892b9e21545458014f9f5f9"
+dependencies = [
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast_visit 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_parser 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_syntax 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "serde",
+ "thiserror",
+ "vize_atelier_core 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_carton 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_croquis 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
 ]
 
 [[package]]
@@ -1864,6 +2198,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "vize_carton"
+version = "0.28.0"
+source = "git+https://github.com/dannote/vize.git?branch=css-modules#54a2acbcdb3b0bcf1892b9e21545458014f9f5f9"
+dependencies = [
+ "bitflags",
+ "bumpalo",
+ "compact_str 0.8.1",
+ "once_cell",
+ "phf 0.11.3",
+ "rustc-hash",
+ "serde",
+ "serde_json",
+ "smallvec",
+ "xxhash-rust",
+]
+
+[[package]]
 name = "vize_croquis"
 version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1871,17 +2222,37 @@ checksum = "a85ed88f6fd3ff0a721cf3bbb40703fe0f8f9f76aa9e140feb023a1c704099c2"
 dependencies = [
  "dashmap 6.1.0",
  "once_cell",
- "oxc_allocator",
- "oxc_ast",
- "oxc_parser",
- "oxc_span",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_parser 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "phf 0.11.3",
  "regex",
  "rustc-hash",
  "serde",
  "serde_json",
- "vize_carton",
- "vize_relief",
+ "vize_carton 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_relief 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "vize_croquis"
+version = "0.28.0"
+source = "git+https://github.com/dannote/vize.git?branch=css-modules#54a2acbcdb3b0bcf1892b9e21545458014f9f5f9"
+dependencies = [
+ "dashmap 6.1.0",
+ "once_cell",
+ "oxc_allocator 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_ast 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_parser 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "oxc_span 0.116.0 (git+https://github.com/oxc-project/oxc?rev=27ee4fc46233bc837e01cb384384cf08dced127c)",
+ "phf 0.11.3",
+ "regex",
+ "rustc-hash",
+ "serde",
+ "serde_json",
+ "vize_carton 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
+ "vize_relief 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
 ]
 
 [[package]]
@@ -1891,16 +2262,16 @@ dependencies = [
  "rustler",
  "serde",
  "serde_json",
- "vize_armature",
- "vize_atelier_core",
- "vize_atelier_dom",
+ "vize_armature 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_atelier_core 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_atelier_dom 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "vize_atelier_sfc",
  "vize_atelier_ssr",
- "vize_atelier_vapor",
- "vize_carton",
- "vize_croquis",
+ "vize_atelier_vapor 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_carton 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_croquis 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "vize_patina",
- "vize_relief",
+ "vize_relief 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1911,19 +2282,19 @@ checksum = "1ca13cdafba708893eaa8f56ec51961eb7136356e6b709e4881dc01273d6184f"
 dependencies = [
  "lightningcss",
  "memchr",
- "oxc_allocator",
- "oxc_ast",
- "oxc_diagnostics",
- "oxc_parser",
- "oxc_span",
- "oxc_syntax",
+ "oxc_allocator 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_ast 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_diagnostics 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_parser 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_span 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "oxc_syntax 0.116.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "serde_json",
  "thiserror",
- "vize_armature",
- "vize_carton",
- "vize_croquis",
- "vize_relief",
+ "vize_armature 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_carton 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_croquis 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vize_relief 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1934,7 +2305,17 @@ checksum = "d18a58374d7a875e90ca5e198f09e41eb3c815255512a720b3fe45b06d32f457"
 dependencies = [
  "serde",
  "thiserror",
- "vize_carton",
+ "vize_carton 0.28.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "vize_relief"
+version = "0.28.0"
+source = "git+https://github.com/dannote/vize.git?branch=css-modules#54a2acbcdb3b0bcf1892b9e21545458014f9f5f9"
+dependencies = [
+ "serde",
+ "thiserror",
+ "vize_carton 0.28.0 (git+https://github.com/dannote/vize.git?branch=css-modules)",
 ]
 
 [[package]]

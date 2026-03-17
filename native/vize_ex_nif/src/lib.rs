@@ -92,6 +92,7 @@ mod atoms {
         // CSS result fields
         map,
         css_vars,
+        exports,
         minify,
         targets,
         scope_id,
@@ -1064,6 +1065,7 @@ fn compile_css_nif<'a>(
     chrome: i64,
     firefox: i64,
     safari: i64,
+    css_modules: bool,
 ) -> NifResult<Term<'a>> {
     let targets = if chrome >= 0 || firefox >= 0 || safari >= 0 {
         Some(CssTargets {
@@ -1104,6 +1106,7 @@ fn compile_css_nif<'a>(
             Some(filename.into())
         },
         custom_media: false,
+        css_modules,
     };
 
     let result = compile_css(source, &options);
@@ -1112,6 +1115,19 @@ fn compile_css_nif<'a>(
     let error_strs: Vec<&str> = result.errors.iter().map(|s| s.as_str()).collect();
     let warning_strs: Vec<&str> = result.warnings.iter().map(|s| s.as_str()).collect();
 
+    let exports_term = match &result.exports {
+        Some(exports) => {
+            let keys: Vec<Term<'a>> = exports.keys().map(|k| k.as_str().encode(env)).collect();
+            let vals: Vec<Term<'a>> = exports.values().map(|v| v.name.as_str().encode(env)).collect();
+            if keys.is_empty() {
+                rustler::types::atom::nil().encode(env)
+            } else {
+                Term::map_from_arrays(env, &keys, &vals).unwrap()
+            }
+        }
+        None => rustler::types::atom::nil().encode(env),
+    };
+
     let map = Term::map_from_arrays(
         env,
         &[
@@ -1119,12 +1135,14 @@ fn compile_css_nif<'a>(
             atoms::css_vars().encode(env),
             atoms::errors().encode(env),
             atoms::warnings().encode(env),
+            atoms::exports().encode(env),
         ],
         &[
             result.code.as_str().encode(env),
             css_vars.encode(env),
             error_strs.encode(env),
             warning_strs.encode(env),
+            exports_term,
         ],
     )
     .unwrap();

@@ -389,6 +389,7 @@ defmodule Vize do
     scoped = Keyword.get(opts, :scoped, false)
     scope_id = Keyword.get(opts, :scope_id, "")
     filename = Keyword.get(opts, :filename, "")
+    css_modules = Keyword.get(opts, :css_modules, false)
     targets = Keyword.get(opts, :targets, %{})
     chrome = Map.get(targets, :chrome, -1)
     firefox = Map.get(targets, :firefox, -1)
@@ -402,7 +403,8 @@ defmodule Vize do
       filename,
       chrome,
       firefox,
-      safari
+      safari,
+      css_modules
     )
   end
 
