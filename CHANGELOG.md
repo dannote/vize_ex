@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0
+
+- Add `bundle_css/2` — bundle a CSS file and all its `@import` dependencies into a single stylesheet via LightningCSS's Bundler. Reads files from disk, resolves imports recursively, wraps in `@media`/`@supports`/`@layer` as needed.
+
+## 0.7.0
+
+- Add `css_modules: true` option to `compile_css/2` — enables LightningCSS CSS Modules mode. Class names, IDs, keyframes, and custom identifiers are scoped, result includes `:exports` map of original → hashed names.
+
 ## 0.6.0
 
 - Add `vapor_split/1` — compiles a Vue template into a statics/slots split ready for `%Phoenix.LiveView.Rendered{}`. All HTML manipulation (tag tree parsing, element-to-tag mapping, marker injection, splitting) happens in the NIF. Sub-blocks for `v-if` / `v-for` / `v-else` are recursively split.
