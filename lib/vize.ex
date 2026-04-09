@@ -354,6 +354,7 @@ defmodule Vize do
   # ── CSS Compilation ──
 
   @type css_result :: %{
+          optional(:exports) => %{optional(String.t()) => String.t()} | nil,
           code: String.t(),
           css_vars: [String.t()],
           errors: [String.t()],
