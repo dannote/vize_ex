@@ -26,6 +26,16 @@ defmodule Vize do
       true
   """
 
+  @type macro_artifact :: %{
+          required(:kind) => String.t(),
+          required(:name) => String.t(),
+          required(:source) => String.t(),
+          required(:content) => String.t(),
+          required(:start) => non_neg_integer(),
+          required(:end) => non_neg_integer(),
+          optional(:code) => String.t()
+        }
+
   @type sfc_result :: %{
           code: String.t(),
           css: String.t() | nil,
@@ -33,7 +43,8 @@ defmodule Vize do
           warnings: [map()],
           template_hash: String.t() | nil,
           style_hash: String.t() | nil,
-          script_hash: String.t() | nil
+          script_hash: String.t() | nil,
+          macro_artifacts: [macro_artifact()]
         }
 
   @type template_result :: %{
@@ -113,6 +124,10 @@ defmodule Vize do
     * `:ssr` — compile for server-side rendering (default: `false`)
     * `:filename` — SFC filename for scope ID generation and source maps (e.g. `"App.vue"`)
     * `:scope_id` — explicit scope ID for scoped CSS (default: auto-generated from filename)
+    * `:custom_renderer` — treat lowercase non-HTML tags as renderer-native
+      elements instead of Vue components (default: `false`)
+    * `:strip_types` — strip TypeScript type annotations from the output
+      using OXC, returning plain JavaScript (default: `false`)
 
   ## Examples
 
@@ -134,7 +149,9 @@ defmodule Vize do
     ssr = Keyword.get(opts, :ssr, false)
     filename = Keyword.get(opts, :filename, "")
     scope_id = Keyword.get(opts, :scope_id, "")
-    Vize.Native.compile_sfc_nif(source, filename, scope_id, vapor, ssr)
+    custom_renderer = Keyword.get(opts, :custom_renderer, false)
+    strip_types = Keyword.get(opts, :strip_types, false)
+    Vize.Native.compile_sfc_nif(source, filename, scope_id, vapor, ssr, custom_renderer, strip_types)
   end
 
   @doc """
@@ -476,6 +493,42 @@ defmodule Vize do
         end
 
         result
+    end
+  end
+
+  # ── Declaration .d.ts Generation ──
+
+  @type dts_result :: %{dts: String.t()}
+
+  @doc """
+  Generate a TypeScript declaration file (`.d.ts`) from a Vue SFC.
+
+  Analyzes the SFC's script blocks and produces a lightweight type
+  surface for component consumers — including prop types, emit signatures,
+  exposed bindings, and slot definitions.
+
+  ## Options
+
+    * `:filename` — SFC filename for diagnostics (default: `"component.vue"`)
+
+  ## Examples
+
+      iex> {:ok, result} = Vize.generate_dts("<script setup>const msg = 1</script>")
+      iex> is_binary(result.dts)
+      true
+  """
+  @spec generate_dts(String.t(), keyword()) :: {:ok, dts_result()} | {:error, String.t()}
+  def generate_dts(source, opts \\ []) do
+    filename = Keyword.get(opts, :filename, "")
+    Vize.Native.generate_dts_nif(source, filename)
+  end
+
+  @doc "Like `generate_dts/2` but raises on errors."
+  @spec generate_dts!(String.t(), keyword()) :: dts_result()
+  def generate_dts!(source, opts \\ []) do
+    case generate_dts(source, opts) do
+      {:ok, result} -> result
+      {:error, reason} -> raise "Vize declaration generation error: #{reason}"
     end
   end
 end

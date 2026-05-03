@@ -18,9 +18,16 @@ defmodule Vize.Native do
   @spec parse_sfc_nif(String.t()) :: {:ok, map()} | {:error, String.t()}
   def parse_sfc_nif(_source), do: :erlang.nif_error(:nif_not_loaded)
 
-  @spec compile_sfc_nif(String.t(), String.t(), String.t(), boolean(), boolean()) ::
-          {:ok, map()} | {:error, String.t()}
-  def compile_sfc_nif(_source, _filename, _scope_id, _vapor, _ssr),
+  @spec compile_sfc_nif(
+          String.t(),
+          String.t(),
+          String.t(),
+          boolean(),
+          boolean(),
+          boolean(),
+          boolean()
+        ) :: {:ok, map()} | {:error, String.t()}
+  def compile_sfc_nif(_source, _filename, _scope_id, _vapor, _ssr, _custom_renderer, _strip_types),
     do: :erlang.nif_error(:nif_not_loaded)
 
   @spec compile_template_nif(String.t(), String.t(), boolean()) ::
@@ -76,4 +83,7 @@ defmodule Vize.Native do
         ) :: {:ok, map()}
   def bundle_css_nif(_entry_path, _minify, _chrome, _firefox, _safari, _css_modules),
     do: :erlang.nif_error(:nif_not_loaded)
+
+  @spec generate_dts_nif(String.t(), String.t()) :: {:ok, map()} | {:error, String.t()}
+  def generate_dts_nif(_source, _filename), do: :erlang.nif_error(:nif_not_loaded)
 end

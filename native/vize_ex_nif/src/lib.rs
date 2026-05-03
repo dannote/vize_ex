@@ -6,6 +6,8 @@ use vize_atelier_sfc::{
     bundle_css, compile_css, compile_sfc, parse_sfc, CssCompileOptions, CssTargets,
     SfcCompileOptions, SfcParseOptions,
 };
+use vize_atelier_sfc::compile_script::typescript::transform_typescript_to_js;
+use vize_atelier_sfc::script::analyze_script_setup_to_summary;
 use vize_atelier_ssr::compile_ssr;
 use vize_atelier_vapor::{compile_vapor, ir::*, transform_to_ir, VaporCompilerOptions};
 use vize_carton::Bump;
@@ -45,7 +47,7 @@ mod atoms {
         block_type,
         loc,
         start,
-        end_,    // `end` is a Rust keyword
+        end_ = "end",
         start_line,
         start_column,
         end_line,
@@ -59,6 +61,7 @@ mod atoms {
         template_hash,
         style_hash,
         script_hash,
+        macro_artifacts,
         message,
         preamble,
         helpers,
@@ -139,6 +142,9 @@ mod atoms {
         // Split result fields
         statics,
 
+        // Declaration .d.ts fields
+        dts,
+
         // Directive kinds
         v_show,
         v_model,
@@ -178,6 +184,8 @@ fn compile_sfc_nif<'a>(
     scope_id: &str,
     vapor: bool,
     ssr: bool,
+    custom_renderer: bool,
+    strip_types: bool,
 ) -> NifResult<Term<'a>> {
     let mut parse_opts = SfcParseOptions::default();
     if !filename.is_empty() {
@@ -193,6 +201,7 @@ fn compile_sfc_nif<'a>(
         vapor,
         template: vize_atelier_sfc::TemplateCompileOptions {
             ssr,
+            custom_renderer,
             ..Default::default()
         },
         ..Default::default()
@@ -205,15 +214,26 @@ fn compile_sfc_nif<'a>(
     }
 
     match compile_sfc(&descriptor, compile_opts) {
-        Ok(result) => Ok(ok_term(
-            env,
-            EncodedCompileSfcResult {
-                result: &result,
-                template_hash: descriptor.template_hash(),
-                style_hash: descriptor.style_hash(),
-                script_hash: descriptor.script_hash(),
-            },
-        )),
+        Ok(result) => {
+            let stripped;
+            let code_override = if strip_types {
+                stripped = transform_typescript_to_js(result.code.as_str());
+                Some(stripped.as_str())
+            } else {
+                None
+            };
+
+            Ok(ok_term(
+                env,
+                EncodedCompileSfcResult {
+                    result: &result,
+                    code_override,
+                    template_hash: descriptor.template_hash(),
+                    style_hash: descriptor.style_hash(),
+                    script_hash: descriptor.script_hash(),
+                },
+            ))
+        }
         Err(e) => Ok(error_term(env, e.message.as_str())),
     }
 }
@@ -795,6 +815,56 @@ fn vapor_split_nif<'a>(env: Env<'a>, source: &str) -> NifResult<Term<'a>> {
         ],
     )
     .unwrap();
+
+    Ok(ok_term(env, result))
+}
+
+// ── Declaration .d.ts Generation ──
+
+#[rustler::nif(schedule = "DirtyCpu")]
+fn generate_dts_nif<'a>(env: Env<'a>, source: &str, filename: &str) -> NifResult<Term<'a>> {
+    let parse_opts = SfcParseOptions {
+        filename: if filename.is_empty() {
+            "component.vue".into()
+        } else {
+            filename.into()
+        },
+        ..Default::default()
+    };
+
+    let descriptor = match parse_sfc(source, parse_opts) {
+        Ok(d) => d,
+        Err(e) => return Ok(error_term(env, format!("{e:?}"))),
+    };
+
+    let plain_script = descriptor.script.as_ref().map(|s| s.content.as_ref());
+    let setup_script = descriptor.script_setup.as_ref().map(|s| s.content.as_ref());
+
+    let summary = match setup_script {
+        Some(content) => analyze_script_setup_to_summary(content),
+        None => vize_croquis::Croquis::new(),
+    };
+
+    let output = match (plain_script, setup_script) {
+        (Some(plain), Some(setup)) => {
+            vize_croquis::declaration_ts::generate_declaration_ts_with_split_scripts(
+                &summary, plain, setup,
+            )
+        }
+        (_, Some(setup)) => {
+            vize_croquis::declaration_ts::generate_declaration_ts(&summary, Some(setup))
+        }
+        (Some(plain), None) => {
+            vize_croquis::declaration_ts::generate_declaration_ts(&summary, Some(plain))
+        }
+        (None, None) => {
+            vize_croquis::declaration_ts::generate_declaration_ts(&summary, None)
+        }
+    };
+
+    let result = term_map!(env, {
+        atoms::dts() => output.content.as_str(),
+    });
 
     Ok(ok_term(env, result))
 }

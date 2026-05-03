@@ -278,9 +278,38 @@ impl Encoder for EncodedParseSfcResult<'_> {
 
 pub(crate) struct EncodedCompileSfcResult<'a> {
     pub(crate) result: &'a vize_atelier_sfc::SfcCompileResult,
+    pub(crate) code_override: Option<&'a str>,
     pub(crate) template_hash: Option<vize_carton::CompactString>,
     pub(crate) style_hash: Option<vize_carton::CompactString>,
     pub(crate) script_hash: Option<vize_carton::CompactString>,
+}
+
+struct EncodedMacroArtifact<'a>(&'a vize_atelier_sfc::SfcMacroArtifact);
+
+impl Encoder for EncodedMacroArtifact<'_> {
+    fn encode<'a>(&self, env: Env<'a>) -> Term<'a> {
+        let mut keys = vec![
+            atoms::kind().encode(env),
+            atoms::name().encode(env),
+            atoms::source().encode(env),
+            atoms::content().encode(env),
+            atoms::start().encode(env),
+            atoms::end_().encode(env),
+        ];
+        let mut vals: Vec<Term<'a>> = vec![
+            self.0.kind.as_str().encode(env),
+            self.0.name.as_str().encode(env),
+            self.0.source.as_str().encode(env),
+            self.0.content.as_str().encode(env),
+            self.0.start.encode(env),
+            self.0.end.encode(env),
+        ];
+        if let Some(ref module_code) = self.0.module_code {
+            keys.push(atoms::code().encode(env));
+            vals.push(module_code.as_str().encode(env));
+        }
+        Term::map_from_arrays(env, &keys, &vals).unwrap()
+    }
 }
 
 impl Encoder for EncodedCompileSfcResult<'_> {
@@ -297,6 +326,16 @@ impl Encoder for EncodedCompileSfcResult<'_> {
             .iter()
             .map(|warning| EncodedSfcError::from(warning).encode(env))
             .collect();
+        let macro_artifacts: Vec<Term<'a>> = self
+            .result
+            .macro_artifacts
+            .iter()
+            .map(|a| EncodedMacroArtifact(a).encode(env))
+            .collect();
+
+        let code = self
+            .code_override
+            .unwrap_or(self.result.code.as_str());
 
         Term::map_from_arrays(
             env,
@@ -308,15 +347,17 @@ impl Encoder for EncodedCompileSfcResult<'_> {
                 atoms::template_hash().encode(env),
                 atoms::style_hash().encode(env),
                 atoms::script_hash().encode(env),
+                atoms::macro_artifacts().encode(env),
             ],
             &[
-                self.result.code.as_str().encode(env),
+                code.encode(env),
                 self.result.css.as_deref().encode(env),
                 errors.encode(env),
                 warnings.encode(env),
                 self.template_hash.as_deref().encode(env),
                 self.style_hash.as_deref().encode(env),
                 self.script_hash.as_deref().encode(env),
+                macro_artifacts.encode(env),
             ],
         )
         .unwrap()

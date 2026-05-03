@@ -345,4 +345,60 @@ defmodule VizeTest do
       assert result.code =~ "color"
     end
   end
+
+  describe "compile_sfc/2 new options" do
+    test "returns macro_artifacts" do
+      {:ok, result} = Vize.compile_sfc(@setup_sfc)
+      assert is_list(result.macro_artifacts)
+    end
+
+    test "strip_types produces valid JavaScript" do
+      ts_sfc = """
+      <template><div>{{ msg }}</div></template>
+      <script setup lang="ts">
+      interface Props { title: string }
+      const msg: string = 'hello'
+      </script>
+      """
+
+      {:ok, result} = Vize.compile_sfc(ts_sfc, strip_types: true)
+
+      refute result.code =~ "interface Props"
+      refute result.code =~ ": string"
+      assert result.code =~ "msg"
+    end
+
+    test "custom_renderer is accepted" do
+      {:ok, result} = Vize.compile_sfc(@simple_sfc, custom_renderer: true)
+      assert result.errors == []
+    end
+  end
+
+  describe "generate_dts/2" do
+    test "generates declaration from script setup" do
+      sfc = """
+      <script setup lang="ts">
+      const msg = 'hello'
+      </script>
+      """
+
+      {:ok, result} = Vize.generate_dts(sfc)
+      assert is_binary(result.dts)
+    end
+
+    test "handles template-only SFC" do
+      {:ok, result} = Vize.generate_dts("<template><div>hi</div></template>")
+      assert is_binary(result.dts)
+    end
+
+    test "accepts filename option" do
+      {:ok, result} = Vize.generate_dts("<script setup>const x = 1</script>", filename: "App.vue")
+      assert is_binary(result.dts)
+    end
+
+    test "bang variant works" do
+      result = Vize.generate_dts!("<script setup>const x = 1</script>")
+      assert is_binary(result.dts)
+    end
+  end
 end
