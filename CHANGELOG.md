@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.10.0
+
+- Bump upstream Vize crates 0.43 → 0.76
+- Add `:custom_renderer` option to `compile_sfc/2` — treats lowercase non-HTML tags as renderer-native elements instead of Vue components
+- Add `:strip_types` option to `compile_sfc/2` — strips TypeScript type annotations via OXC, returning plain JavaScript in a single NIF call
+- `compile_sfc/2` result now includes `:macro_artifacts` — compile-time macro artifacts extracted from script blocks (`definePage`, `definePageMeta`, etc.)
+- Add `generate_dts/2` — generates `.d.ts` declarations from SFC script analysis
+- Fix `:end_` atom → `:end` in loc maps and macro artifacts
+
+## 0.9.0
+
+- Bump upstream Vize crates 0.28 → 0.43
+- Rewrite `vapor_split` Rust module for correctness
+
 ## 0.8.0
 
 - Add `bundle_css/2` — bundle a CSS file and all its `@import` dependencies into a single stylesheet via LightningCSS's Bundler. Reads files from disk, resolves imports recursively, wraps in `@media`/`@supports`/`@layer` as needed.
